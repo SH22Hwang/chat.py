@@ -1,11 +1,13 @@
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QRadioButton, QPushButton, QHBoxLayout, \
-    QListWidget, QTextEdit, QDesktopWidget
+    QListWidget, QTextEdit, QDesktopWidget, QLineEdit, QListWidgetItem
 from PyQt5.QtGui import QPixmap, QIcon
 import sys
 import cv2
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 import numpy as np
+
+DEFAULT_PORT = '9999'
 
 
 class VideoThread(QThread):
@@ -34,6 +36,7 @@ class VideoThread(QThread):
 class App(QWidget):
     def __init__(self):
         super().__init__()
+
         self.setWindowTitle("화면공유 프로그램")
         self.setWindowIcon(QIcon('icon.png'))
         self.center()
@@ -81,6 +84,8 @@ class App(QWidget):
         sendChat.setFixedWidth(300)
         # 채팅창 박스
         chatBox.addWidget(recvChat)
+        recvChat.addItem(QListWidgetItem("[마산아재]: 안녕하세요?"))
+        recvChat.addItem(QListWidgetItem("[zx컴퓨터지존xz]: ㅎㅇㅎㅇ~"))
         chatBox.addWidget(sendChat)
         # self.sendbtn.clicked.connect(self.sendMsg)
         # 엔터 누르면 보내는 것으로 변경
@@ -123,11 +128,61 @@ class App(QWidget):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
+        qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+
+class Login(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('화면공유 프로그램')
+        self.setWindowIcon(QIcon('icon.png'))
+
+        vbox = QVBoxLayout()
+
+        self.ip = QLineEdit()
+        self.ip.setInputMask('000.000.000.000')
+
+        self.port = QLineEdit(DEFAULT_PORT)
+
+        self.username = QLineEdit()
+        # self.username.editingFinished().connect(self.start)
+
+        self.btn = QPushButton('접속', self)
+        self.btn.clicked.connect(self.start)
+
+        ipLabel = QLabel('HOST IP')
+        portLabel = QLabel('PORT')
+        userLabel = QLabel('USER NAME')
+
+        vbox.addWidget(ipLabel)
+        vbox.addWidget(self.ip)
+        vbox.addWidget(portLabel)
+        vbox.addWidget(self.port)
+        vbox.addWidget(userLabel)
+        vbox.addWidget(self.username)
+        vbox.addWidget(self.btn)
+
+        self.setLayout(vbox)
+        self.show()
+
+    def start(self):
+        ip = self.ip.text()
+        port = self.port.text()
+        username = self.username.text()
+        app = App(ip, port, username)
+        app.show()
+
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    # l = Login()
+    # l.show()
     a = App()
     a.show()
     sys.exit(app.exec_())
